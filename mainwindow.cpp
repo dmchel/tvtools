@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     initConnectionTab();
     initLedControlTab();
+    initDemoTab();
 }
 
 MainWindow::~MainWindow()
@@ -90,6 +91,33 @@ void MainWindow::onConnectionBoxCheck(bool fChecked)
     }
 }
 
+void MainWindow::onDemoRadioButtonCheck(bool fChecked)
+{
+    if(fChecked) {
+        if(ui->randomRadioButton->isChecked()) {
+            emit demo(0, ui->randomSpinBox->value());
+        }
+        else if(ui->stringRadioButton->isChecked()) {
+            emit demo(1, ui->stringSpinBox->value());
+        }
+        else if(ui->fretRadioButton->isChecked()) {
+            emit demo(2, ui->fretSpinBox->value());
+        }
+    }
+}
+
+void MainWindow::onPlayButtonClick()
+{
+    if(ui->playButton->text().startsWith('P')) {
+        emit play();
+        ui->playButton->setText("Stop");
+    }
+    else if(ui->playButton->text().startsWith('S')) {
+        emit stop();
+        ui->playButton->setText("Play");
+    }
+}
+
 void MainWindow::initConnectionTab()
 {
     QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
@@ -111,7 +139,7 @@ void MainWindow::initLedControlTab()
     item.timestamp = 1000;
     item.duration = 500;
     item.ledColor = "red";
-    item.ledData = "7899";
+    item.ledData = "0xxx";
 
     for(int i = 0; i < 10; i++) {
         item.num++;
@@ -119,4 +147,15 @@ void MainWindow::initLedControlTab()
     }
 
     ui->ledTableView->setModel(model);
+
+    connect(ui->playButton, &QPushButton::clicked, this, &MainWindow::onPlayButtonClick);
+    connect(ui->pauseButton, &QPushButton::clicked, this, &MainWindow::pause);
+    connect(ui->brightSlider, &QSlider::sliderMoved, this, &MainWindow::brightness);
+}
+
+void MainWindow::initDemoTab()
+{
+    connect(ui->randomRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
+    connect(ui->stringRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
+    connect(ui->fretRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
 }

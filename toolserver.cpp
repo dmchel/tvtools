@@ -11,7 +11,14 @@ ToolServer::ToolServer(QObject *parent) : QObject(parent)
     protocol = Q_NULLPTR;
     serialDevice = Q_NULLPTR;
 
+    pingTimer = new QTimer(this);
+    pingTimer->setTimerType(Qt::PreciseTimer);
+    connect(pingTimer, &QTimer::timeout, this, &ToolServer::ping);
+
     dataVault = new ProtocolData(this);
+    connect(this, &ToolServer::ping, dataVault, &ProtocolData::sendPing);
+
+    pingTimer->start(1000);
 }
 
 ToolServer::~ToolServer()

@@ -18,13 +18,13 @@ signals:
 
 public slots:
     void packetHandler(const SerialPacket &pack);
-
-private slots:
     void sendPing();
 
-private:
-    QTimer *pingTimer;
 
+private slots:
+
+
+private:
     bool fValidPackArrived = false;
 };
 

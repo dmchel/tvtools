@@ -22,6 +22,8 @@ signals:
     void sendConnectionStatus(bool fConnected);
     void sendConnectionInfo(const QJsonObject &info);
 
+    void ping();
+
 public slots:
     void openSerialPort(const QString &name);
     void closeSerialPort();
@@ -35,6 +37,8 @@ private:
     ProtocolManager *protocol;
     SerialHandler *serialDevice;
     ProtocolData *dataVault;
+
+    QTimer *pingTimer = Q_NULLPTR;
 };
 
 #endif // TOOLSERVER_H

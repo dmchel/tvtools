@@ -4,17 +4,15 @@
 
 ProtocolData::ProtocolData(QObject *parent) : QObject(parent)
 {
-    pingTimer = new QTimer(this);
-    pingTimer->setTimerType(Qt::PreciseTimer);
-    pingTimer->setInterval(1000);
-    connect(pingTimer, &QTimer::timeout, this, &ProtocolData::sendPing);
-    pingTimer->start();
+
 }
 
 void ProtocolData::packetHandler(const SerialPacket &pack)
 {
     if(pack.isValid()) {
         fValidPackArrived = true;
+        //here we take care off some packs
+
     }
 }
 

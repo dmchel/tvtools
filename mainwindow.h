@@ -26,12 +26,21 @@ signals:
     void requestConnection(const QString &name);
     void dropConnection();
 
+    void play();
+    void stop();
+    void pause();
+    void brightness(int value);
+    void demo(int num, int step);
+
 private slots:
     void onConnectionBoxCheck(bool fChecked);
+    void onDemoRadioButtonCheck(bool fChecked);
+    void onPlayButtonClick();
 
 private:
     void initConnectionTab();
     void initLedControlTab();
+    void initDemoTab();
 
 private:
     Ui::MainWindow *ui;
