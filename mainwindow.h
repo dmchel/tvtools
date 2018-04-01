@@ -18,9 +18,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void setLedModel(LedRecordModel *lm);
+
 public slots:
     void setConnectionStatus(bool fConnected);
     void setConnectionInfo(const QJsonObject &info);
+    void setDebugMessage(const QString &mess);
+    void setDebugData(const QByteArray &data);
 
 signals:
     void requestConnection(const QString &name);
@@ -32,10 +36,17 @@ signals:
     void brightness(int value);
     void demo(int num, int step);
 
+protected:
+    virtual void contextMenuEvent(QContextMenuEvent *e);
+
 private slots:
     void onConnectionBoxCheck(bool fChecked);
     void onDemoRadioButtonCheck(bool fChecked);
+    void onDemoPeriodChanged(int period);
     void onPlayButtonClick();
+    void onAddTaskTableAction();
+    void onRemoveTaskTableAction();
+    void onClearTableAction();
 
 private:
     void initConnectionTab();
@@ -44,7 +55,10 @@ private:
 
 private:
     Ui::MainWindow *ui;
-    LedRecordModel *model;
+    QMenu *tableMenu;
+    LedRecordModel *model = Q_NULLPTR;
+
+    int currentDemoNum = 0;
 };
 
 #endif // MAINWINDOW_H

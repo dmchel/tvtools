@@ -6,6 +6,8 @@
 
 #include <QSerialPortInfo>
 #include <QJsonObject>
+#include <QMenu>
+#include <QAction>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -13,14 +15,38 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    tableMenu = new QMenu(ui->ledTableView);
+    QAction *addTaskAction = new QAction(tr("Add new task"), ui->ledTableView);
+    //addTaskAction->setShortcut(tr("Alt+N"));
+    connect(addTaskAction, &QAction::triggered, this, &MainWindow::onAddTaskTableAction);
+    tableMenu->addAction(addTaskAction);
+    QAction *removeTaskAction = new QAction(tr("Remove task"), ui->ledTableView);
+    //removeTaskAction->setShortcut(tr("Ctrl+D"));
+    connect(removeTaskAction, &QAction::triggered, this, &MainWindow::onRemoveTaskTableAction);
+    tableMenu->addAction(removeTaskAction);
+    QAction *clearAction = new QAction(tr("Clear table"), ui->ledTableView);
+    //clearAction->setShortcut(tr("Ctrl+L"));
+    connect(clearAction, &QAction::triggered, this, &MainWindow::onClearTableAction);
+    tableMenu->addAction(clearAction);
+
     initConnectionTab();
     initLedControlTab();
     initDemoTab();
+
+    ui->plainTextEdit->setReadOnly(true);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::setLedModel(LedRecordModel *lm)
+{
+    if(lm) {
+        model = lm;
+        ui->ledTableView->setModel(model);
+    }
 }
 
 void MainWindow::setConnectionStatus(bool fConnected)
@@ -73,6 +99,23 @@ void MainWindow::setConnectionInfo(const QJsonObject &info)
     }
 }
 
+void MainWindow::setDebugMessage(const QString &mess)
+{
+    ui->plainTextEdit->insertPlainText(mess + QString("\r\n"));
+}
+
+void MainWindow::setDebugData(const QByteArray &data)
+{
+    ui->plainTextEdit->insertPlainText(data + QString("\r\n"));
+}
+
+void MainWindow::contextMenuEvent(QContextMenuEvent *e)
+{
+    if(ui->tabWidget->currentIndex() == 1) {
+        tableMenu->exec(e->globalPos());
+    }
+}
+
 /**
  * Private methods
  */
@@ -95,14 +138,61 @@ void MainWindow::onDemoRadioButtonCheck(bool fChecked)
 {
     if(fChecked) {
         if(ui->randomRadioButton->isChecked()) {
-            emit demo(0, ui->randomSpinBox->value());
+            emit demo(1, ui->randomSpinBox->value());
+            currentDemoNum = 1;
         }
         else if(ui->stringRadioButton->isChecked()) {
-            emit demo(1, ui->stringSpinBox->value());
+            emit demo(2, ui->stringSpinBox->value());
+            currentDemoNum = 2;
         }
         else if(ui->fretRadioButton->isChecked()) {
-            emit demo(2, ui->fretSpinBox->value());
+            emit demo(3, ui->fretSpinBox->value());
+            currentDemoNum = 3;
         }
+        else if(ui->redFillRadioButton->isChecked()) {
+            emit demo(4, ui->redFillSpinBox->value());
+            currentDemoNum = 4;
+        }
+        else if(ui->yellowFillRadioButton->isChecked()) {
+            emit demo(5, ui->yellowFillSpinBox->value());
+            currentDemoNum = 5;
+        }
+        else if(ui->snakeRadioButton->isChecked()) {
+            emit demo(6, ui->snakeSpinBox->value());
+            currentDemoNum = 6;
+        }
+        else {
+            emit demo(0, 0);
+            currentDemoNum = 0;
+        }
+    }
+}
+
+void MainWindow::onDemoPeriodChanged(int period)
+{
+    Q_UNUSED(period);
+    switch(currentDemoNum) {
+    case 0:
+        emit demo(0, 0);
+        break;
+    case 1:
+        emit demo(currentDemoNum, ui->randomSpinBox->value());
+        break;
+    case 2:
+        emit demo(currentDemoNum, ui->stringSpinBox->value());
+        break;
+    case 3:
+        emit demo(currentDemoNum, ui->fretSpinBox->value());
+        break;
+    case 4:
+        emit demo(currentDemoNum, ui->redFillSpinBox->value());
+        break;
+    case 5:
+        emit demo(currentDemoNum, ui->yellowFillSpinBox->value());
+        break;
+    case 6:
+        emit demo(currentDemoNum, ui->snakeSpinBox->value());
+        break;
     }
 }
 
@@ -115,6 +205,33 @@ void MainWindow::onPlayButtonClick()
     else if(ui->playButton->text().startsWith('S')) {
         emit stop();
         ui->playButton->setText("Play");
+    }
+}
+
+void MainWindow::onAddTaskTableAction()
+{
+    if(model) {
+        model->addRecord(LedRecordItem(model->rowCount() + 1, 0, 0, "red", "xxxx"));
+    }
+}
+
+void MainWindow::onRemoveTaskTableAction()
+{
+    if(model == Q_NULLPTR) {
+        return;
+    }
+    QModelIndexList selectionList = ui->ledTableView->selectionModel()->selectedIndexes();
+    if(!selectionList.isEmpty()) {
+        for(auto select : selectionList) {
+            model->removeRecord(select.row());
+        }
+    }
+}
+
+void MainWindow::onClearTableAction()
+{
+    if(model) {
+        model->removeAll();
     }
 }
 
@@ -131,26 +248,13 @@ void MainWindow::initLedControlTab()
 {
     CustomRecordDelegate *myDelegate = new CustomRecordDelegate(this);
     ui->ledTableView->setItemDelegate(myDelegate);
-
-    model = new LedRecordModel(this);
-
-    LedRecordItem item;
-    item.num = 0;
-    item.timestamp = 1000;
-    item.duration = 500;
-    item.ledColor = "red";
-    item.ledData = "0xxx";
-
-    for(int i = 0; i < 10; i++) {
-        item.num++;
-        model->addRecord(item);
-    }
-
-    ui->ledTableView->setModel(model);
+    ui->brightSlider->setTracking(true);
 
     connect(ui->playButton, &QPushButton::clicked, this, &MainWindow::onPlayButtonClick);
     connect(ui->pauseButton, &QPushButton::clicked, this, &MainWindow::pause);
-    connect(ui->brightSlider, &QSlider::sliderMoved, this, &MainWindow::brightness);
+    //connect(ui->brightSlider, &QSlider::sliderMoved, this, &MainWindow::brightness);
+    connect(ui->brightSlider, &QSlider::valueChanged, this, &MainWindow::brightness);
+    connect(ui->addTaskButton, &QPushButton::clicked, this, &MainWindow::onAddTaskTableAction);
 }
 
 void MainWindow::initDemoTab()
@@ -158,4 +262,15 @@ void MainWindow::initDemoTab()
     connect(ui->randomRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
     connect(ui->stringRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
     connect(ui->fretRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
+    connect(ui->redFillRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
+    connect(ui->yellowFillRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
+    connect(ui->snakeRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
+    connect(ui->demoOffRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
+
+    connect(ui->randomSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
+    connect(ui->stringSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
+    connect(ui->fretSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
+    connect(ui->redFillSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
+    connect(ui->yellowFillSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
+    connect(ui->snakeSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
 }

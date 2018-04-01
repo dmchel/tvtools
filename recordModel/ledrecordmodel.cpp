@@ -38,6 +38,15 @@ void LedRecordModel::removeRecord(const LedRecordItem &record) {
     endResetModel();
 }
 
+void LedRecordModel::removeRecord(int index)
+{
+    beginResetModel();
+    if((index >= 0) && (index < records.size())) {
+        records.removeAt(index);
+    }
+    endResetModel();
+}
+
 void LedRecordModel::rewriteRecord(int index, const LedRecordItem &rwRecord)
 {
     beginResetModel();
@@ -45,6 +54,11 @@ void LedRecordModel::rewriteRecord(int index, const LedRecordItem &rwRecord)
         records[index] = rwRecord;
     }
     endResetModel();
+}
+
+QList<LedRecordItem> LedRecordModel::readAllData()
+{
+    return records;
 }
 
 void LedRecordModel::removeAll() {
