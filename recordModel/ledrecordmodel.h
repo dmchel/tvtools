@@ -34,23 +34,23 @@ public:
 
     void addRecord(const LedRecordItem &record);
     void removeRecord(const LedRecordItem &record);
+    void removeRecord(int index);
     void rewriteRecord(int index, const LedRecordItem &rwRecord);
 
     void removeAll();
 
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
-private:
-
-private:
     QList<LedRecordItem> records;
+private:
 
+private:
     const int MAX_COLUMN_NUM_LOG = 4;
 
 };

@@ -33,7 +33,8 @@ SOURCES += \
     protocoldata.cpp \
     toolserver.cpp \
     recordModel/datetimedelegate.cpp \
-    recordModel/ledrecordmodel.cpp
+    recordModel/ledrecordmodel.cpp \
+    tabtask.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -42,7 +43,8 @@ HEADERS += \
     protocoldata.h \
     toolserver.h \
     recordModel/datetimedelegate.h \
-    recordModel/ledrecordmodel.h
+    recordModel/ledrecordmodel.h \
+    tabtask.h
 
 
 FORMS += \
