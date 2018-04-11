@@ -48,7 +48,6 @@ public:
 
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
-    QList<LedRecordItem> records;
 private:
     QList<LedRecordItem> records;
 
