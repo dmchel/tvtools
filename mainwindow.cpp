@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :
     initConnectionTab();
     initLedControlTab();
     initDemoTab();
+
+    ui->plainTextEdit->setReadOnly(true);
 }
 
 MainWindow::~MainWindow()
@@ -97,6 +99,16 @@ void MainWindow::setConnectionInfo(const QJsonObject &info)
     }
 }
 
+void MainWindow::setDebugMessage(const QString &mess)
+{
+    ui->plainTextEdit->insertPlainText(mess + QString("\r\n"));
+}
+
+void MainWindow::setDebugData(const QByteArray &data)
+{
+    ui->plainTextEdit->insertPlainText(data + QString("\r\n"));
+}
+
 void MainWindow::contextMenuEvent(QContextMenuEvent *e)
 {
     if(ui->tabWidget->currentIndex() == 1) {
@@ -127,25 +139,60 @@ void MainWindow::onDemoRadioButtonCheck(bool fChecked)
     if(fChecked) {
         if(ui->randomRadioButton->isChecked()) {
             emit demo(1, ui->randomSpinBox->value());
+            currentDemoNum = 1;
         }
         else if(ui->stringRadioButton->isChecked()) {
             emit demo(2, ui->stringSpinBox->value());
+            currentDemoNum = 2;
         }
         else if(ui->fretRadioButton->isChecked()) {
             emit demo(3, ui->fretSpinBox->value());
+            currentDemoNum = 3;
         }
         else if(ui->redFillRadioButton->isChecked()) {
             emit demo(4, ui->redFillSpinBox->value());
+            currentDemoNum = 4;
         }
         else if(ui->yellowFillRadioButton->isChecked()) {
             emit demo(5, ui->yellowFillSpinBox->value());
+            currentDemoNum = 5;
         }
         else if(ui->snakeRadioButton->isChecked()) {
             emit demo(6, ui->snakeSpinBox->value());
+            currentDemoNum = 6;
         }
         else {
             emit demo(0, 0);
+            currentDemoNum = 0;
         }
+    }
+}
+
+void MainWindow::onDemoPeriodChanged(int period)
+{
+    Q_UNUSED(period);
+    switch(currentDemoNum) {
+    case 0:
+        emit demo(0, 0);
+        break;
+    case 1:
+        emit demo(currentDemoNum, ui->randomSpinBox->value());
+        break;
+    case 2:
+        emit demo(currentDemoNum, ui->stringSpinBox->value());
+        break;
+    case 3:
+        emit demo(currentDemoNum, ui->fretSpinBox->value());
+        break;
+    case 4:
+        emit demo(currentDemoNum, ui->redFillSpinBox->value());
+        break;
+    case 5:
+        emit demo(currentDemoNum, ui->yellowFillSpinBox->value());
+        break;
+    case 6:
+        emit demo(currentDemoNum, ui->snakeSpinBox->value());
+        break;
     }
 }
 
@@ -205,7 +252,8 @@ void MainWindow::initLedControlTab()
 
     connect(ui->playButton, &QPushButton::clicked, this, &MainWindow::onPlayButtonClick);
     connect(ui->pauseButton, &QPushButton::clicked, this, &MainWindow::pause);
-    connect(ui->brightSlider, &QSlider::sliderMoved, this, &MainWindow::brightness);
+    //connect(ui->brightSlider, &QSlider::sliderMoved, this, &MainWindow::brightness);
+    connect(ui->brightSlider, &QSlider::valueChanged, this, &MainWindow::brightness);
     connect(ui->addTaskButton, &QPushButton::clicked, this, &MainWindow::onAddTaskTableAction);
 }
 
@@ -218,4 +266,11 @@ void MainWindow::initDemoTab()
     connect(ui->yellowFillRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
     connect(ui->snakeRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
     connect(ui->demoOffRadioButton, &QRadioButton::clicked, this, &MainWindow::onDemoRadioButtonCheck);
+
+    connect(ui->randomSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
+    connect(ui->stringSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
+    connect(ui->fretSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
+    connect(ui->redFillSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
+    connect(ui->yellowFillSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
+    connect(ui->snakeSpinBox, SIGNAL(valueChanged(int)), SLOT(onDemoPeriodChanged(int)));
 }

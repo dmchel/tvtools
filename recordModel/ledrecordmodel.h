@@ -37,6 +37,7 @@ public:
     void removeRecord(int index);
     void rewriteRecord(int index, const LedRecordItem &rwRecord);
 
+    QList<LedRecordItem> readAllData();
     void removeAll();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -49,6 +50,7 @@ public:
 
     QList<LedRecordItem> records;
 private:
+    QList<LedRecordItem> records;
 
 private:
     const int MAX_COLUMN_NUM_LOG = 4;

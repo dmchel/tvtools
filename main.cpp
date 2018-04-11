@@ -13,6 +13,8 @@ int main(int argc, char *argv[])
     QObject::connect(&w, &MainWindow::dropConnection, &tool, &ToolServer::closeSerialPort);
     QObject::connect(&tool, &ToolServer::sendConnectionStatus, &w, &MainWindow::setConnectionStatus);
     QObject::connect(&tool, &ToolServer::sendConnectionInfo, &w, &MainWindow::setConnectionInfo);
+    QObject::connect(&tool, &ToolServer::printDebug, &w, &MainWindow::setDebugMessage);
+    QObject::connect(&tool, &ToolServer::printDebugData, &w, &MainWindow::setDebugData);
     QObject::connect(&w, &MainWindow::play, &tool, &ToolServer::playRequest);
     QObject::connect(&w, &MainWindow::stop, &tool, &ToolServer::stopRequest);
     QObject::connect(&w, &MainWindow::pause, &tool, &ToolServer::pauseRequest);

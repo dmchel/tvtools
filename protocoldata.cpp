@@ -1,6 +1,7 @@
 #include "protocoldata.h"
 
 #include <QTimer>
+#include <QDateTime>
 
 ProtocolData::ProtocolData(QObject *parent) : QObject(parent)
 {
@@ -30,13 +31,26 @@ void ProtocolData::packetHandler(const SerialPacket &pack)
                 break;
             case (quint8) ProtocolData::DebugResponce::RESP_ERROR:
                 if(pack.length == 2) {
-
+                    emit printDebug(QDateTime::currentDateTime().toString() + tr(" communication error "));
+                    QByteArray errorData;
+                    errorData.append(pack.address);
+                    errorData.append(pack.command);
+                    errorData.append(pack.data);
+                    emit printDebugData(errorData.toHex());
                 }
                 break;
             case (quint8) ProtocolData::DebugResponce::RESP_CONFIRM:
                 if(pack.length == 2) {
-
+                    emit printDebug(QDateTime::currentDateTime().toString() + tr(" confirm "));
+                    QByteArray confirmData;
+                    confirmData.append(pack.address);
+                    confirmData.append(pack.command);
+                    confirmData.append(pack.data);
+                    emit printDebugData(confirmData.toHex());
                 }
+                break;
+            case (quint8) ProtocolData::DebugResponce::RESP_PRINT_TEXT:
+                emit printDebugData(pack.data);
                 break;
             default:
                 break;
@@ -103,6 +117,6 @@ void ProtocolData::sendDemo(int num, int step)
     pack.data[0] = num;
     quint16 st = step;
     pack.data[1] = st & 0xFF;
-    pack.data[2] = st >> 8;
+    pack.data[2] = (st >> 8);
     emit generatePacket(pack);
 }

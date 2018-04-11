@@ -56,6 +56,11 @@ void LedRecordModel::rewriteRecord(int index, const LedRecordItem &rwRecord)
     endResetModel();
 }
 
+QList<LedRecordItem> LedRecordModel::readAllData()
+{
+    return records;
+}
+
 void LedRecordModel::removeAll() {
     beginResetModel();
     records.clear();

@@ -13,6 +13,14 @@ class ProtocolData : public QObject
 public:
     explicit ProtocolData(QObject *parent = nullptr);
 
+    enum TabVisionMode {
+        TV_NONE,
+        TV_BASIC = 0x1,
+        TV_DEBUG = 0x2,
+        TV_DEMO = 0x3,
+        TV_OFF = 0x4
+    };
+
     enum class DebugCommands {
         CMD_NONE,
         CMD_PING = 0x1,
@@ -30,7 +38,8 @@ public:
         RESP_INFO = 0x2,
         RESP_CONF = 0x3,
         RESP_ERROR = 0x4,
-        RESP_CONFIRM = 0x5
+        RESP_CONFIRM = 0x5,
+        RESP_PRINT_TEXT = 0x64
     };
 
     enum class DebugError {
@@ -55,6 +64,8 @@ public:
 
 signals:
     void generatePacket(const SerialPacket &pack);
+    void printDebug(const QString &mess);
+    void printDebugData(const QByteArray &data);
 
 public slots:
     void packetHandler(const SerialPacket &pack);

@@ -23,6 +23,8 @@ public:
 public slots:
     void setConnectionStatus(bool fConnected);
     void setConnectionInfo(const QJsonObject &info);
+    void setDebugMessage(const QString &mess);
+    void setDebugData(const QByteArray &data);
 
 signals:
     void requestConnection(const QString &name);
@@ -40,6 +42,7 @@ protected:
 private slots:
     void onConnectionBoxCheck(bool fChecked);
     void onDemoRadioButtonCheck(bool fChecked);
+    void onDemoPeriodChanged(int period);
     void onPlayButtonClick();
     void onAddTaskTableAction();
     void onRemoveTaskTableAction();
@@ -54,6 +57,8 @@ private:
     Ui::MainWindow *ui;
     QMenu *tableMenu;
     LedRecordModel *model = Q_NULLPTR;
+
+    int currentDemoNum = 0;
 };
 
 #endif // MAINWINDOW_H

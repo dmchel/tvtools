@@ -40,7 +40,8 @@ void TabTask::parseData(const QString &tabStr)
             }
             int stringNum = 0;
             while(!str.isEmpty() && (stringNum < 6)) {
-                auto sym = str.remove(0, 1);
+                auto sym = str.left(1);
+                str.remove(0, 1);
                 if(sym == "x" || sym == "X") {
                     //skip;
                     stringNum++;
@@ -51,9 +52,15 @@ void TabTask::parseData(const QString &tabStr)
                     int fretNum = sym.toInt(&fConvert);
                     if(fConvert) {
                        for(int i = 0; i < TAB_TASK_MAX_SIZE; i++) {
-                           if((data[i].fretNum == 0xFF) || (data[i].fretNum == fretNum)) {
+                           if(data[i].fretNum == 0xFF) {
                                data[i].fretNum = fretNum;
                                data[i].leds[stringNum] = ls;
+                               fretCount++;
+                               break;
+                           }
+                           else if(data[i].fretNum == fretNum) {
+                               data[i].leds[stringNum] = ls;
+                               break;
                            }
                        }
                     }
